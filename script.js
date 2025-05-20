@@ -153,8 +153,7 @@ function revealImgs(entries, observer) {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.src = entry.target.dataset.src;
-      entry.target.addEventListener(`load
-        `, () => {
+      entry.target.addEventListener(`load`, () => {
         entry.target.classList.remove(`lazy-img`);
       });
       observer.unobserve(entry.target);
@@ -167,3 +166,86 @@ const imgObserver = new IntersectionObserver(revealImgs, { root: null, threshold
 imgTarget.forEach((img) => {
   imgObserver.observe(img);
 });
+
+//slider // IMG KARUSEL!!! <------------------------------------------
+const slider = () => {
+  const slides = document.querySelectorAll(`.slide`);
+  const slider = document.querySelector(`.slider`);
+  const slideRightBtn = document.querySelector(`.slider__btn--right`);
+  const slideLeftBtn = document.querySelector(`.slider__btn--left`);
+  const dotsContainer = document.querySelector(`.dots`);
+  // create dots for each slide
+  slides.forEach((slide, i) => {
+    dotsContainer.insertAdjacentHTML(`beforeend`, `<button class = "dots__dot" data-slide="${i}"></button>`);
+  });
+
+  let curSlide = 0;
+  const maxSlide = slides.length; //  maxSlide -1 amount of imgs
+
+  //functions
+  function goToSlide(s) {
+    slides.forEach((slide, i) => {
+      slide.style.transform = `translateX(${100 * (i - s)}%)`; //0 видимое изображение все остальное скрыто
+    });
+  }
+  // Next slide
+  const nextSlide = () => {
+    if (curSlide === maxSlide - 1) {
+      curSlide = 0;
+    } else {
+      curSlide++;
+    }
+    goToSlide(curSlide);
+    activateDots(curSlide);
+  };
+
+  // Previous slide
+  const prevSlide = () => {
+    if (curSlide === 0) {
+      curSlide = maxSlide - 1;
+    } else {
+      curSlide--;
+    }
+    goToSlide(curSlide);
+    activateDots(curSlide);
+  };
+
+  const init = () => {
+    activateDots(0);
+    goToSlide(0);
+  };
+  init();
+  // Events
+  slideRightBtn.addEventListener(`click`, nextSlide);
+  slideLeftBtn.addEventListener(`click`, prevSlide);
+  // keydown left-right slide show
+  document.addEventListener(`keydown`, (e) => {
+    switch (e.key) {
+      case "ArrowRight":
+        nextSlide();
+        break;
+      case "ArrowLeft":
+        prevSlide();
+        break;
+    }
+  });
+
+  // switching slide by click on the dot
+  dotsContainer.addEventListener(`click`, (e) => {
+    console.log(e.target);
+    if (e.target.classList.contains(`dots__dot`)) {
+      const id = Number(e.target.dataset.slide);
+      goToSlide(id);
+      activateDots(id);
+    }
+  });
+  // make active dot for active slide
+  function activateDots(slide) {
+    const buttons = document.querySelectorAll(`.dots__dot`);
+    buttons.forEach((dot) => {
+      dot.classList.remove(`dots__dot--active`);
+    });
+    document.querySelector(`.dots__dot[data-slide="${slide}"]`).classList.add(`dots__dot--active`);
+  }
+};
+slider();
